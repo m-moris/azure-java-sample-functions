@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.5.0</version>
+        <relativePath/>
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>spring-cloud-function-azure</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>spring-cloud-function-azure</name>
+    <description>Spring Cloud Function with Azure Adapter</description>
+    <properties>
+        <java.version>11</java.version>
+        <spring-cloud-function.version>3.1.3</spring-cloud-function.version>
+        <azure.functions.java.library.version>1.4.2</azure.functions.java.library.version>
+        <azure.functions.maven.plugin.version>1.12.0</azure.functions.maven.plugin.version>
+        <functionAppName>spring-cloud-function-azure</functionAppName>
+        <start-class>com.example.DemoApplication</start-class>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-function-adapter-azure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-function-webflux</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-function-dependencies</artifactId>
+                <version>${spring-cloud-function.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.microsoft.azure.functions</groupId>
+                <artifactId>azure-functions-java-library</artifactId>
+                <version>${azure.functions.java.library.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-functions-maven-plugin</artifactId>
+                <version>${azure.functions.maven.plugin.version}</version>
+                <configuration>
+                    <auth>
+                        <type>azure_cli</type>
+                    </auth>
+                    <appName>${functionAppName}</appName>
+                    <resourceGroup>java-functions-group</resourceGroup>
+                    <appServicePlanName>java-functions-app-service-plan</appServicePlanName>
+                    <region>japaneast</region>
+                    <runtime>
+                        <os>linux</os>
+                        <javaVersion>11</javaVersion>
+                    </runtime>
+                    <appSettings>
+                        <property>
+                            <name>FUNCTIONS_EXTENSION_VERSION</name>
+                            <value>~3</value>
+                        </property>
+                        <property>
+                            <name>FUNCTIONS_WORKER_RUNTIME</name>
+                            <value>java</value>
+                        </property>
+                    </appSettings>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>package-functions</id>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
