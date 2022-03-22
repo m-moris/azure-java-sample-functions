@@ -70,8 +70,6 @@ The `@Bean` will be exposed as an API by Spring Cloud Function.
 curl http://localhost:8080/api/uppercase -d "hello world" -H "Content-Type: text/plain"
 ```
 
-GETでも引数をURLパスに含めると、引数として渡すことができるが、Azure Functions上ではできない。
-
 Access the following URL to obtain the results.
 
 ```sh
