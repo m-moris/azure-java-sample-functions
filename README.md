@@ -1,66 +1,70 @@
 # Azure Functions Samples for Java
 
-Azure Functions for Java のサンプルで、いくつか実装方法があるため自己理解をまとめたものである。
+**[日本語 (Japanese)](./README.ja.md)**
 
-+ 標準的な関数
-+ Spring Cloud Function の Azure アダプタをベースとした関数
-+ Spring Cloud Function をベースとして、カスタムハンドラを使った関数
+There are several ways to implement Azure Functions in Java. This repository is a sample of them.
 
-## 標準的な関数
+- Standard Functions.
+- Function based on Azure adapter for Spring Cloud Function
+- Functions based on Spring Cloud Functions with custom handlers
 
-標準的な Azure Functions のサンプルで、以下のコマンドでプロジェクトを作成できる。
+## Standard Functions
+
+A standard Azure Functions sample, the project can be created with the following commands
 
 ```sh
 mvn archetype:generate -DarchetypeGroupId=com.microsoft.azure -DarchetypeArtifactId=azure-functions-archetype -DjavaVersion=11
 ```
 
-+ 必要な設定は、上記生成で設定される（`pom.xml` や `host.json` 、 `local.settings.json` など）
-+ 各関数は、アノテーションベースで修飾する。そこから 関数の定義である `function.json` が自動で生成される。
-+ 素のJavaアプリケーションなため、DIなどのフレームワークは使えない。
+- Required settings are set by MAVEN（`pom.xml` ,`host.json` 、 `local.settings.json` etc...)
+- Each function is qualified on an annotation basis. From there, `function.json`, the function definition, is automatically generated.
+- Because it is a pure Java application, frameworks such as DI cannot be used.
 
 ## Azure Spring Cloud Function
 
-Spring Cloud Functions の Azure アダプタを利用した Azure Functions のサンプルであり、標準的なものと以下の違いがある。
+This is a sample of Azure Functions using the Azure adapter for Spring Cloud Functions, with the following differences from the standard
 
-+ `host.json` が異なる。（ルートに置いておけば、Azure Functions Maven Pluginによってパッケージされる）
-+ `functions.json` はアノテーションによる自動生成
-+ `pom.xml` のプロパティに `<start-class>` を指定する。`MANIFEST.MF` に埋め込まれる。
-+ `spring-boot:run` する訳ではないので、`spring-boot-maven-plugin` は不要 （変な位置にあると`repackage`されて微妙にバグることに）
-+ 実行時に依存関係するライブラリは、`target/azure-functions/{applicationName}/lib` にコピーされる（Azure Functions Maven plugin の仕様として）
-+ Functions Java Worker 経由で呼び出される（アプリがHTTPをリッスンするわけではない）
+- The `host.json` is different. If placed in the root folder, it will be packaged by the Azure Functions Maven Plugin.
+- `functions.json` is generated automatically by annotation.
+-  Specify `<start-class>` as a property of `pom.xml`. Embedded in `MANIFEST.MF`.
+- Since it is not run by `spring-boot:run`, `spring-boot-maven-plugin` is not needed. (If it is in a strange position, it will be `repackaged` and slightly buggy.)
 
-以下にリファレンスがあるが、記述内容が少し古い。
+- Dependency libraries are copied to `target/azure-functions/{applicationName}/lib` at runtime (as specified by the Azure Functions Maven plugin)
+- Functions Called via Java Worker (app does not listen for HTTP)
+
+The following is a reference, but the description is a bit outdated
 
 + https://docs.spring.io/spring-cloud-function/docs/current/reference/html/azure.html
 
 ## Spring Cloud Function + Native
 
-素のSpring Cloud Function アプリケーションをNative Image化するとともに、Azure Functions のカスタムハンドラーを利用して、Azure Functionsで実行する。
+Native imaging of Spring Cloud Function applications as well as custom handlers for Azure Functions to run in Azure Functions.
 
-Native Image を作成するために、JVM は GraalVM に切り替える必要がある。
+To create a Native Image, the JVM must switch to GraalVM.
+
 
 ```sh
 export JAVA_HOME=/usr/local/graalvm-ce-java11-21.1.0
 export PATH=/usr/local/graalvm-ce-java11-21.1.0/bin:$PATH
 ```
 
-+ アプリ自身は、素の Spring Cloud Function アプリ（後述の方法で実行できる）
-+ `application.properties` の `spring.cloud.function.web.path` で APIのプレフィックスを変更している
-+ Azure Functions 上での実行は、Native Imageを実行するようカスタムハンドラーを使う
-+ そのときのHTTPリクエストは `enableForwardingHttpRequest` を有効にしてのままフォワードする
-+ `host.json` , `functions.json` の定義は手動。`target/azure-functions` へのコピーは、`pom.xml` で構成する
-+ Native Image の作成とローカルで実行は後述のとおり
-+ Native Imageのポート番号は、`application.properties` の `server.port=${FUNCTIONS_CUSTOMHANDLER_PORT:8080}` により設定する
 
-### ローカルの Spring Boot として実行
+- The application itself can run as a Spring Cloud Function app (explained later)
+- API prefix is changed in `spring.cloud.function.web.path` in `application.properties`.
+- Execution on Azure Functions uses a custom handler to execute the Native Image.
+- Define `host.json` , `functions.json` manually. The copy to `target/azure-functions` is configured in `pom.xml`.
+- Creating a Native Image and running it locally is described below.
+- Set the port number of Native Image by `server.port=${FUNCTIONS_CUSTOMHANDLER_PORT:8080}` in `application.properties`.
 
-以下のコマンドで、ローカル実行する。
+### Run as local Spring Boot
+
+Execute the following command.
 
 ```sh
 mvn clean package spring-boot:run -DskipTests
 ```
 
-`@Bean` が Spring Cloud Function により APIとして公開される。
+The `@Bean` will be exposed as an API by Spring Cloud Function.
 
 ```sh
 curl http://localhost:8080/api/uppercase -d "hello world" -H "Content-Type: text/plain"
@@ -68,46 +72,50 @@ curl http://localhost:8080/api/uppercase -d "hello world" -H "Content-Type: text
 
 GETでも引数をURLパスに含めると、引数として渡すことができるが、Azure Functions上ではできない。
 
+Access the following URL to obtain the results.
+
 ```sh
 curl http://localhost:8080/apu/uppercase/HOGEHOGE
 ```
 
-### ローカルの Azure Functionsとして実行
+### Run as local Azure Functions
 
-以下のコマンドで、Azure Functionsとしてローカルに実行する。（Native用に構成しているので、Java Workerからの実行はできない）
+Run locally as Azure Functions with the following command. (Since it is configured for Native, it cannot be run from a Java Worker.)
 
 ```sh
 mvn clean package -Pnative 
 mvn azure-functions:run 
 ```
 
-Native Imageの作成には、数分かかる。作成されたバイナリファイルは単独でも実行可能である。
+Creating a Native Image takes a few minutes. The created binary file can be executed by itself.
 
 ```sh
 ./target/azure-functions/spring-cloud-function-native/com.example.DemoApplication
 ```
 
-Azure Functions として公開されたURLにアクセスする。Functions Host を経由して、Native の Spring Boot アプリにアクセスされる。
+Access URLs published as Azure Functions, which are accessed via the Functions Host to Native Spring Boot apps.
 
 ```sh
 curl http://localhost:7071/api/uppercase -d "hello world" -H "Content-Type: text/plain"
 ```
 
-### Azure 上での実行
+### Running on Azure
 
-そのままでは、Azure Functions Maven Plugin を使ってデプロイできない。対象ディレクトリに`jar` ファイルの有無と形式をチェックしている。（0バイトのファイルを置いてもNG）
+Cannot deploy using the Azure Functions Maven Plugin as is.
 
-手動で、`jar` ファイルをコピーすると、デプロイタスクが実行できる。（`pom.xml` でやればいいけど）
+The presence and format of the `jar` file is checked in the target directory. (Even if you put a file with 0 bytes, it is NG)
+
+Manually, you can copy the `jar` file to perform the deployment task.
 
 ```sh
 cp target/spring-cloud-function-native-0.0.1-SNAPSHOT.jar target/azure-functions/spring-cloud-function-native
 ```
 
-警告がでるけど無視する。
+You get a warning, but you ignore it.
 
 ```log
 [WARNING] The POM for com.microsoft.azure.applicationinsights.v2015_05_01:azure-mgmt-insights:jar:1.0.0-beta is invalid, transitive dependencies (if any) will not be available, enable debug logging for more details
 [WARNING] App setting `FUNCTIONS_WORKER_RUNTIME` doesn't meet the requirement of Azure Java Functions, the value should be `java`.
 ```
 
-デプロイしたURLでアクセスできるはず。
+It can be accessed at the deployed URL.
