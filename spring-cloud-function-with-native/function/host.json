@@ -2,7 +2,7 @@
     "version": "2.0",
     "customHandler": {
       "description": {
-        "defaultExecutablePath": "com.example.DemoApplication",
+        "defaultExecutablePath": "spring-cloud-function-native",
         "workingDirectory": "",
         "arguments": [
           "--logging.level.web=DEBUG"

@@ -21,6 +21,4 @@ public class DemoApplication {
             return value.toLowerCase();
         });
     }
-
-
 }

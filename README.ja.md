@@ -1,5 +1,19 @@
 # Azure Functions Samples for Java
 
+### 更新
+
+- 全体的にAzure Functionsのバージョンを更新
+- Azure Spring Cloud Function
+  - Spring Boot のバージョンを更新 (2.7.9)
+  - Azure Cloud Adapter のバージョンを更新 (4.0.1)
+- Spring Cloud Function + Native
+  - Spring Boot のバージョンを Native Imageがサポートされている 3.1.0-M に更新
+  - Azure Cloud Adapter のバージョンを更新 (4.0.1)
+  - Graalvm のバージョンを更新
+
+
+## 概要
+
 Azure Functions for Java のサンプルで、いくつか実装方法があるため自己理解をまとめたものである。
 
 + 標準的な関数
@@ -18,6 +32,14 @@ mvn archetype:generate -DarchetypeGroupId=com.microsoft.azure -DarchetypeArtifac
 + 各関数は、アノテーションベースで修飾する。そこから 関数の定義である `function.json` が自動で生成される。
 + 素のJavaアプリケーションなため、DIなどのフレームワークは使えない。
 
+### 実行方法
+
+以下でローカル実行できる。
+
+```sh
+mvn clean package azure-functions:run -DskipTests
+```
+
 ## Azure Spring Cloud Function
 
 Spring Cloud Functions の Azure アダプタを利用した Azure Functions のサンプルであり、標準的なものと以下の違いがある。
@@ -29,9 +51,17 @@ Spring Cloud Functions の Azure アダプタを利用した Azure Functions の
 + 実行時に依存関係するライブラリは、`target/azure-functions/{applicationName}/lib` にコピーされる（Azure Functions Maven plugin の仕様として）
 + Functions Java Worker 経由で呼び出される（アプリがHTTPをリッスンするわけではない）
 
-以下にリファレンスがあるが、記述内容が少し古い。
+以下にリファレンスがあり、現時点で `4.0.1`
 
 + https://docs.spring.io/spring-cloud-function/docs/current/reference/html/azure.html
+
+### 実行方法
+
+以下でローカル実行できる。
+
+```sh
+mvn clean package azure-functions:run -DskipTests
+```
 
 ## Spring Cloud Function + Native
 
@@ -40,8 +70,8 @@ Spring Cloud Functions の Azure アダプタを利用した Azure Functions の
 Native Image を作成するために、JVM は GraalVM に切り替える必要がある。
 
 ```sh
-export JAVA_HOME=/usr/local/graalvm-ce-java11-21.1.0
-export PATH=/usr/local/graalvm-ce-java11-21.1.0/bin:$PATH
+export JAVA_HOME=/usr/local/graalvm-ce-java17-22.2.1
+export PATH=/usr/local/graalvm-ce-java17-22.3.1/bin:$PATH
 ```
 
 + アプリ自身は、素の Spring Cloud Function アプリ（後述の方法で実行できる）
@@ -77,14 +107,14 @@ curl http://localhost:8080/apu/uppercase/HOGEHOGE
 以下のコマンドで、Azure Functionsとしてローカルに実行する。（Native用に構成しているので、Java Workerからの実行はできない）
 
 ```sh
-mvn clean package -Pnative 
+mvn -Pnative native:compile 
 mvn azure-functions:run 
 ```
 
 Native Imageの作成には、数分かかる。作成されたバイナリファイルは単独でも実行可能である。
 
 ```sh
-./target/azure-functions/spring-cloud-function-native/com.example.DemoApplication
+./target/azure-functions/spring-cloud-function-native/spring-cloud-function-native
 ```
 
 Azure Functions として公開されたURLにアクセスする。Functions Host を経由して、Native の Spring Boot アプリにアクセスされる。
@@ -100,7 +130,7 @@ curl http://localhost:7071/api/uppercase -d "hello world" -H "Content-Type: text
 手動で、`jar` ファイルをコピーすると、デプロイタスクが実行できる。（`pom.xml` でやればいいけど）
 
 ```sh
-cp target/spring-cloud-function-native-0.0.1-SNAPSHOT.jar target/azure-functions/spring-cloud-function-native
+cp target/spring-cloud-function-native-0.0.2-SNAPSHOT.jar target/azure-functions/spring-cloud-function-native
 ```
 
 警告がでるけど無視する。

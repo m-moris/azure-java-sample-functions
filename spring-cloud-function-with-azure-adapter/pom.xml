@@ -5,19 +5,19 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.0</version>
+        <version>2.7.9</version>
         <relativePath/>
     </parent>
     <groupId>com.example</groupId>
     <artifactId>spring-cloud-function-azure</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>spring-cloud-function-azure</name>
     <description>Spring Cloud Function with Azure Adapter</description>
     <properties>
-        <java.version>11</java.version>
-        <spring-cloud-function.version>3.1.3</spring-cloud-function.version>
-        <azure.functions.java.library.version>1.4.2</azure.functions.java.library.version>
-        <azure.functions.maven.plugin.version>1.12.0</azure.functions.maven.plugin.version>
+        <java.version>17</java.version>
+        <spring-cloud-function.version>4.0.1</spring-cloud-function.version>
+        <azure.functions.maven.plugin.version>1.24.0</azure.functions.maven.plugin.version>
+        <azure.functions.java.library.version>2.2.0</azure.functions.java.library.version>
         <functionAppName>spring-cloud-function-azure</functionAppName>
         <start-class>com.example.DemoApplication</start-class>
     </properties>
@@ -87,12 +87,12 @@
                     <region>japaneast</region>
                     <runtime>
                         <os>linux</os>
-                        <javaVersion>11</javaVersion>
+                        <javaVersion>17</javaVersion>
                     </runtime>
                     <appSettings>
                         <property>
                             <name>FUNCTIONS_EXTENSION_VERSION</name>
-                            <value>~3</value>
+                            <value>~4</value>
                         </property>
                         <property>
                             <name>FUNCTIONS_WORKER_RUNTIME</name>
