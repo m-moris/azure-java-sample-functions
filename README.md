@@ -1,6 +1,19 @@
 # Azure Functions Samples for Java
 
+### Update 2023/03/17
+
+- Update Azure functions version
+- Azure Spring Cloud Function
+  - Updated Spring boot version (2.7.9)
+  - Updated Azure Cloud Adapter version (4.0.1)
+- Spring Cloud Function + Native
+  - Update Spring Boot version (3.1.0-M). Native image support.
+  - Updated Azure Cloud Adapter version (4.0.1)
+  - Update Graalvm version (17)
+
 **[日本語 (Japanese)](./README.ja.md)**
+
+## Intro
 
 There are several ways to implement Azure Functions in Java. This repository is a sample of them.
 
